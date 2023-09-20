@@ -21,9 +21,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Loading all datasets
 
 ```{r}
+# load resistome files
 resistome_files = dir("resistome_folder") # change to correct folder
 resistome_datasets = lapply(resistome_files, \(x) read.table(paste0("resistome_folder/",x), header=T,as.is = T))
+# load metadata
+metadata_full = read.table("metadata_file.txt",sep="\t",header=T,as.is  = T)
 
 ```
 
-## 
+## Running per-cohort associations 
+
+```{r}
+library(lme4)
+
+```
