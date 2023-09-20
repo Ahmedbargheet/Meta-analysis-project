@@ -1,5 +1,29 @@
-# meta analysis approach 
-# CREATED: Alex Kurilshikov
-# Date created: 20 Wed 2023
-# Last modified by: Alex Kurilshikov
-# Date modified: 20 Wed 2023
+---
+title: "Untitled"
+author: "Alex Kur"
+date: "2023-09-20"
+output: html_document
+---
+
+<!-- your comment 
+## meta analysis approach 
+## CREATED: Alex Kurilshikov
+## Date created: 20 Wed 2023
+## Last modified by: Alex Kurilshikov
+## Date modified: 20 Wed 2023
+-->
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading all datasets
+
+```{r}
+resistome_files = dir("resistome_folder") # change to correct folder
+resistome_datasets = lapply(resistome_files, \(x) read.table(paste0("resistome_folder/",x), header=T,as.is = T))
+
+```
+
+## 
