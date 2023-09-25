@@ -29,9 +29,46 @@ metadata_full = read.table("metadata_file.txt",sep="\t",header=T,as.is  = T)
 
 ```
 
-## Running per-cohort associations 
+## Running meta-analysis using mixed models
+
+### Running 'dynamic' phenotypes 
+
+This analysis is dedicated to phenotypes that are changing during time, i.e. each 'singular' measurement is 
+each timepoint of the baby which also has the measurement of a phenotype of interest 
 
 ```{r}
-library(lme4)
+install.packages("lmerTest")
+
+library(lmerTest)
+
+.SingleTraitModel = function(microbe_trait, phenotypes, studyID, infantID) {
+    #microbiome trait is a single column data frame or matrix column (with row names)
+    #phenotypes is data frame of all phenotypes that should be included as fixed factors. Sequencing IDs should be in row names
+    #studyID and infantID are single column data frames
+    microbiome_trait = microbiome_trait[match(samples,rownames(microbiome_trait)),,drop = F]
+    phenotypes = phenotypes[match(samples,rownames(phenotypes)),,drop =F]
+    studyID = studyID[match(samples,rownames(studyID)),,drop =F]
+    infantID = infantID[match(samples,rownames(infantID)),,drop =F]
+
+    combined_data = data.frame(microbiome = microbiome_trait[,1],phenotypes,studyID = studyID[,1],infantID = infantID[,1]
+
+    Model = lmerTest::lmer(microbiome_trait ~ . + (1|studyID) + (1|infantID:studyID),data = combined_data) 
+    ModelSummary = summary(Model)$coefficients
+    modelSummary[-1,]
+}
+
+MultipleTraitsAnalyses = function(microbe_table,phenotypes,studyID,infantID) {
+    samples = intersect(rownames(microbe_trait), rownames(phenotypes))
+    microbe_table = microbe_table[match(samples,rownames(microbe_table)),,drop = F]
+    phenotypes = phenotypes[match(samples,rownames(phenotypes)),,drop =F]
+    studyID = studyID[match(samples,rownames(studyID)),,drop =F]
+    infantID = infantID[match(samples,rownames(infantID)),,drop =F]
+
+    result = apply(microbe_table,2, function(x) .SingleTraitModel(x,phenotypes,studyID,infantID))
+    for(i in 1:ncol(microbe_table)) result[[i]] = data.frame(Microbe_trait = colnames(microbe_table)[i],result[[i]]
+    do.call(rbind,result)
+}
+
+dynamicData_results = MultipleTraitsAnalyses(resistome_files,metadata_full[,],studyID = metadata_full[,"studyID",drop = F],infantID = metadata_full[,"infantID",drop = F])
 
 ```
